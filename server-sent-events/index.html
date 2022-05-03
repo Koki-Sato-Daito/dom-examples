@@ -11,39 +11,50 @@
 
 <script>
   var button = document.querySelector('button');
+  // サーバーからのイベントを受信する
+  // イベントを生成するスクリプトのURIを指定
   var evtSource = new EventSource('sse.php');
   console.log(evtSource.withCredentials);
   console.log(evtSource.readyState);
   console.log(evtSource.url);
   var eventList = document.querySelector('ul');
 
+  // サーバと接続が出来たらログを出力
   evtSource.onopen = function() {
     console.log("Connection to server opened.");
   };
 
-  evtSource.onmessage = function(e) {
-    var newElement = document.createElement("li");
+  // サーバーからのメッセージが届いたら
+  // メッセージをliに囲ってli要素にappendChildする
+  // eventが指定されているのでonmessageは発火しない？
+  // evtSource.onmessage = function(e) {
+  //   console.log("onmessageが発火");
+  //   var newElement = document.createElement("li");
+  //
+  //   newElement.textContent = "message: " + e.data;
+  //   eventList.appendChild(newElement);
+  // };
 
-    newElement.textContent = "message: " + e.data;
-    eventList.appendChild(newElement);
-  };
-
+  // エラーだったらログを出力
   evtSource.onerror = function() {
     console.log("EventSource failed.");
   };
 
+  // ボタンをクリックしたらコネクションを閉じる
   button.onclick = function() {
     console.log('Connection closed');
     evtSource.close();
   };
 
-  // evtSource.addEventListener("ping", function(e) {
-  //   var newElement = document.createElement("li");
-  //
-  //   var obj = JSON.parse(e.data);
-  //   newElement.innerHTML = "ping at " + obj.time;
-  //   eventList.appendChild(newElement);
-  // }, false);
+  // pingという名前のイベントリスナーを作ってもメッセージを処理できる
+  evtSource.addEventListener("ping", function(e) {
+    var newElement = document.createElement("li");
+
+    var obj = JSON.parse(e.data);
+    newElement.innerHTML = "ping at " + obj.time;
+    eventList.appendChild(newElement);
+  }, false);
+
 </script>
 </body>
 </html>
